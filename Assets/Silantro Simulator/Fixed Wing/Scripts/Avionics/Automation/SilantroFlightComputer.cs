@@ -314,8 +314,21 @@ public class SilantroFlightComputer : MonoBehaviour
     public float wingArea;
     public float baseliftCoefficient;
     public float wingLift;
+    // Test Function
+    public void test1()
+    {
+        Debug.Log("Test1");
+    }
 
-
+    public void test2()
+    {
+        Debug.Log("Test2");
+    }
+    
+    public void test3()
+    {
+        Debug.Log("Test3");
+    }
     // ----------------------------------------------- Airline Variables
     public float absoluteBankAngle = 67f;
     public float maximumClimbPitchRate = 5f;

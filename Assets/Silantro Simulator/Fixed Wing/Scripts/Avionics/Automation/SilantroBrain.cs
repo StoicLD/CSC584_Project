@@ -285,7 +285,7 @@ public class SilantroBrain
     // -------------------------------------------TAXI----------------------------------------------------------------------------------------------------------
     void TaxiMode()
     {
-        Debug.Log("Taxiing!");
+        //Debug.Log("Taxiing!");
         // ------------------------------------- Clamp
         float thresholdSpeed = maximumTaxiSpeed * 0.1f;
        
@@ -384,9 +384,10 @@ public class SilantroBrain
         }
         else 
         { 
-            
             Debug.Log(controller.transform.name + " clearance invalid! Aircraft not in holding pattern"); 
         }
+        computer.processedPitch = computer.pitchRateSolver.CalculateOutput(computer.pitchRateError, computer.timeStep);
+        Debug.Log("Clicking!");
     }
 
 
@@ -415,7 +416,7 @@ public class SilantroBrain
             {
                 computer.commandPitchRate = 0f;
                 computer.pitchRateError = computer.pitchRate - computer.commandPitchRate;
-                computer.processedPitch = computer.pitchRateSolver.CalculateOutput(computer.pitchRateError, computer.timeStep);
+                //computer.processedPitch = computer.pitchRateSolver.CalculateOutput(computer.pitchRateError, computer.timeStep);
             }
             else
             {
@@ -425,7 +426,7 @@ public class SilantroBrain
                 computer.commandPitchRate = computer.pitchAngleSolver.CalculateOutput(computer.pitchAngleError, computer.timeStep);
 
                 computer.pitchRateError = computer.pitchRate - computer.commandPitchRate;
-                computer.processedPitch = computer.pitchRateSolver.CalculateOutput(computer.pitchRateError, computer.timeStep);
+                //computer.processedPitch = computer.pitchRateSolver.CalculateOutput(computer.pitchRateError, computer.timeStep);
             }
             #endregion Pitch Control
 
