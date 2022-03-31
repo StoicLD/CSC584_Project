@@ -1,6 +1,7 @@
 ﻿using Oyedoyin;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -75,7 +76,12 @@ public class SilantroBrain
     public float cruiseSpeed = 300f;
     public float cruiseHeading = 0f;
     public float cruiseClimbRate = 1500f;
+    //---------------------------------- New
+    public Transform pathContainer;
+    private List<Transform> path =  new List<Transform>();
+    private int path_cur = 0;
 
+    // Start is called before the first frame update
 
 
 
@@ -84,7 +90,13 @@ public class SilantroBrain
     {
         // -------------------------
         if(tracker != null) { tracker.aircraft = controller; tracker.InitializePlug(); }
-
+        // customized path
+        pathContainer = GameObject.Find("Takeoff Track A").transform;
+        for (int i = 0; i < pathContainer.childCount; i++)
+        {
+            path.Add(pathContainer.GetChild(i));
+        }
+        path_cur = 0;
         // ------------------------ Plot
         PlotSteerCurve();
     }
@@ -173,7 +185,8 @@ public class SilantroBrain
     {
         // --------------------------- Lights
         controller.input.TurnOnLights();
-
+        flapSet = true;
+/*
         // --------------------------- Actuators
         if (controller.canopyActuator && controller.canopyActuator.actuatorState == SilantroActuator.ActuatorState.Engaged) { controller.canopyActuator.DisengageActuator(); }
         if (controller.speedBrakeActuator && controller.speedBrakeActuator.actuatorState == SilantroActuator.ActuatorState.Engaged) { controller.speedBrakeActuator.DisengageActuator(); }
@@ -197,6 +210,7 @@ public class SilantroBrain
 
 
         // --------------------------- Control Surfaces
+        
         yield return new WaitForSeconds(checkListTime);
         if (!checkingSurfaces && currentTestTime < 1f) { currentTestTime = evaluateTime; checkingSurfaces = true; }
         if (!checkedSurfaces)
@@ -212,7 +226,7 @@ public class SilantroBrain
         computer.processedRoll = 0f;
         computer.processedYaw = 0f;
         computer.processedStabilizerTrim = 0f;
-
+        */  
         groundChecklistComplete = true;
 
         // ---------------------------- Transition
@@ -223,6 +237,7 @@ public class SilantroBrain
 
 
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------
+    
     void CheckControlSurfaces(float controlInput)
     {
         if (checkingSurfaces)
@@ -264,12 +279,13 @@ public class SilantroBrain
             }
         }
     }
-
+    
 
 
     // -------------------------------------------TAXI----------------------------------------------------------------------------------------------------------
     void TaxiMode()
     {
+        Debug.Log("Taxiing!");
         // ------------------------------------- Clamp
         float thresholdSpeed = maximumTaxiSpeed * 0.1f;
        
@@ -286,7 +302,7 @@ public class SilantroBrain
             {
                 taxiState = TaxiState.Holding;
                 targetTaxiSpeed = 0; brakeInput = 0f;
-                if (controller.gearHelper != null) { controller.gearHelper.EngageBrakes(); }
+                if (controller.gearHelper != null) { controller.ToggleBrakeState(); }
                 isTaxing = false;
 
                 //--------------- Set Takeoff Parameters
@@ -294,7 +310,7 @@ public class SilantroBrain
             }
             else
             {
-                if(tracker.currentPoint > tracker.track.pathPoints.Count - 6 && tracker.currentPoint < tracker.track.pathPoints.Count - 4) { targetTaxiSpeed = (0.6f*maximumTaxiSpeed)/ 1.94384f; } //96
+                if(tracker.currentPoint > tracker.track.pathPoints.Count - 6 && tracker.currentPoint < tracker.track.pathPoints.Count - 4) { targetTaxiSpeed = (0.9f*maximumTaxiSpeed)/ 1.94384f; } //96
                 else if(tracker.currentPoint > tracker.track.pathPoints.Count - 5 && tracker.currentPoint < tracker.track.pathPoints.Count - 3) { targetTaxiSpeed = (0.5f * maximumTaxiSpeed) / 1.94384f; } //97
                 else if (tracker.currentPoint > tracker.track.pathPoints.Count - 4 && tracker.currentPoint < tracker.track.pathPoints.Count - 2) { targetTaxiSpeed = (0.25f * maximumTaxiSpeed) / 1.94384f; } //98
                 else if (tracker.currentPoint > tracker.track.pathPoints.Count - 3 && tracker.currentPoint < tracker.track.pathPoints.Count - 1) { targetTaxiSpeed = (0.1f * maximumTaxiSpeed) / 1.94384f; } //98
@@ -366,7 +382,11 @@ public class SilantroBrain
             if (!clearedForTakeoff) { clearedForTakeoff = true; }
             else { Debug.Log(controller.transform.name + " has been cleared for takeoff"); }
         }
-        else { Debug.Log(controller.transform.name + " clearance invalid! Aircraft not in holding pattern"); }
+        else 
+        { 
+            
+            Debug.Log(controller.transform.name + " clearance invalid! Aircraft not in holding pattern"); 
+        }
     }
 
 
