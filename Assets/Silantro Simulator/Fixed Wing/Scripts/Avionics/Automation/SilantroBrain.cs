@@ -28,6 +28,7 @@ public class SilantroBrain
 
 
     // ----------------------------------------- Connections
+    public Rigidbody aircraft;
     public SilantroWaypointPlug tracker;
     public SilantroController controller;
     public AnimationCurve steerCurve;
@@ -74,8 +75,8 @@ public class SilantroBrain
     // -------------------------------- Cruise
     public float cruiseAltitude = 1000f;
     public float cruiseSpeed = 300f;
-    public float cruiseHeading = 0f;
-    public float cruiseClimbRate = 1500f;
+    public float cruiseHeading = -90f;
+    public float cruiseClimbRate = 1200f;
     //---------------------------------- New
     public Transform pathContainer;
     private List<Transform> path =  new List<Transform>();
@@ -83,12 +84,55 @@ public class SilantroBrain
 
     // Start is called before the first frame update
 
-
+    private Matrix4x4 fromRotation(float rad, Vector3 axis) 
+    {
+        float x = axis[0];
+        float y = axis[1];
+        float z = axis[2];
+        float len = Mathf.Sqrt(x*x + y*y + z*z);
+        float s, c, t;
+        Matrix4x4 ret = new Matrix4x4();
+        ret[0] = 0;
+        if (len < 1e-7) {
+            return ret;
+        }
+        len = 1 / len;
+        x *= len;
+        y *= len;
+        z *= len;
+        s = Mathf.Sin(rad);
+        c = Mathf.Cos(rad);
+        t = 1 - c;
+        // Perform rotation-specific matrix multiplication
+        ret[0] = x * x * t + c;
+        ret[1] = y * x * t + z * s;
+        ret[2] = z * x * t - y * s;
+        ret[3] = 0;
+        ret[4] = x * y * t - z * s;
+        ret[5] = y * y * t + c;
+        ret[6] = z * y * t + x * s;
+        ret[7] = 0;
+        ret[8] = x * z * t + y * s;
+        ret[9] = y * z * t - x * s;
+        ret[10] = z * z * t + c;
+        ret[11] = 0;
+        ret[12] = 0;
+        ret[13] = 0;
+        ret[14] = 0;
+        ret[15] = 1;
+        return ret;
+    }
+    private void ApplyMat4toAxis(ref Matrix4x4 l, ref Vector3 a)
+    {
+        a = l.MultiplyPoint3x4(a);
+        return;
+    }
 
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------
     public void InitializeBrain()
     {
         // -------------------------
+        aircraft = controller.aircraft;
         if(tracker != null) { tracker.aircraft = controller; tracker.InitializePlug(); }
         // customized path
         pathContainer = GameObject.Find("Takeoff Track A").transform;
@@ -102,8 +146,76 @@ public class SilantroBrain
     }
 
 
+    public void test1()
+    {
+        cruiseHeading -= 2.5f;
+        cruiseHeading = -90f;
+        Debug.Log("Test1" + cruiseHeading);
+    }
 
+    public void test2()
+    {
+        cruiseAltitude -= 100;
+        Debug.Log("Test2  " + cruiseAltitude);
+    }
+    
+    public void test3()
+    {
+        cruiseHeading += 2.5f;
+        Debug.Log("Test3" + cruiseHeading);
+    }
 
+    public void test5()
+    {
+        cruiseAltitude += 100;
+        Debug.Log("Test5  " + cruiseAltitude);
+    }
+    public void test4()
+    {
+        Vector3 temp = aircraft.velocity.normalized;
+        float x =  Mathf.Sin(computer.yawAngle* Mathf.Deg2Rad);
+        float z =  Mathf.Cos(computer.yawAngle* Mathf.Deg2Rad);
+        
+        Vector3 Model_Facing_Axis = new Vector3(
+            Mathf.Cos(computer.pitchAngle* Mathf.Deg2Rad) * x,
+            -Mathf.Sin(computer.pitchAngle* Mathf.Deg2Rad),
+            Mathf.Cos(computer.pitchAngle* Mathf.Deg2Rad) * z
+        );
+        Vector3 Model_Side_Axis = new Vector3(
+            Mathf.Cos(computer.rollAngle* Mathf.Deg2Rad) *z,
+            -Mathf.Sin(computer.rollAngle* Mathf.Deg2Rad),
+            Mathf.Cos(computer.rollAngle* Mathf.Deg2Rad) *-x
+        );
+        Vector3 Model_Up = Vector3.Cross(Model_Facing_Axis,Model_Side_Axis);
+        Debug.Log(  " " + temp.ToString("F4"));
+        Debug.Log( "SB: " + Model_Side_Axis.ToString("F4") + " " + Model_Up.ToString("F4"));
+        temp = Vector3.ProjectOnPlane(temp, Model_Up);
+        Debug.Log( "SB: " + Model_Facing_Axis.ToString("F4") + " " + temp.ToString("F4"));
+        Debug.Log( "ANGLE ERROR?: " + Vector3.SignedAngle(temp, Model_Facing_Axis, Model_Up));
+
+        //float rotangle = computer.rollAngle;
+        //Matrix4x4 m1 = fromRotation(Mathf.Deg2Rad * rotangle, Model_Facing_Axis);
+        //temp = m1.MultiplyPoint3x4(temp);
+        //Vector3 rotAxis = Vector3.Cross(Model_Facing_Axis, temp);
+
+        //rotangle = Vector3.Angle(Model_Facing_Axis, new Vector3(0,0,1));
+        //Vector3 rotAxis = Vector3.Cross(Model_Facing_Axis, new Vector3(0,0,1));
+        //m1 = fromRotation(Mathf.Deg2Rad * rotangle, rotAxis);
+        //temp = m1.MultiplyPoint3x4(temp);
+
+        //temp -= Model_Facing_Axis;
+        //float yawError = (float)Math.Round(temp[0] - Model_Facing_Axis[0], 3) * 100;
+        //Debug.Log(Model_Facing_Axis.ToString("F4") + "\n" + temp.ToString("F4") + "  " + aircraft.velocity);
+        //Debug.Log( "YAW ERROR: " + temp.ToString("F4"));
+       
+    }
+/*
+"CR:" + computer.currentClimbRate +
+        float sp = temp.magnitude;
+        float x = Mathf.Cos(computer.pitchAngle* Mathf.Deg2Rad) * Mathf.Sin(computer.yawAngle* Mathf.Deg2Rad)  * sp;
+        float z = Mathf.Cos(computer.pitchAngle* Mathf.Deg2Rad) * Mathf.Cos(computer.yawAngle* Mathf.Deg2Rad) *  sp;
+        float y = -Mathf.Sin(computer.pitchAngle* Mathf.Deg2Rad) * sp;
+*/
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------
     public void UpdateBrain()
     {
@@ -112,7 +224,8 @@ public class SilantroBrain
         {
             case FlightState.Grounded: GroundMode(); break;
             case FlightState.Taxi: TaxiMode(); break;
-            case FlightState.Takeoff: TakeoffMode(); break;
+            case FlightState.Takeoff: TakeoffMode();
+                 break;
             case FlightState.Cruise: CruiseMode(); break;
         }
 
@@ -232,7 +345,9 @@ public class SilantroBrain
         // ---------------------------- Transition
         yield return new WaitForSeconds(transitionTime);
         flightState = FlightState.Taxi;
-        if (controller.gearHelper != null) { controller.gearHelper.ReleaseBrakes(); }
+        takeoffHeading = computer.currentHeading;
+        flightState = FlightState.Takeoff;
+        if (controller.gearHelper) { controller.gearHelper.ReleaseBrakes(); } 
     }
 
 
@@ -280,8 +395,6 @@ public class SilantroBrain
         }
     }
     
-
-
     // -------------------------------------------TAXI----------------------------------------------------------------------------------------------------------
     void TaxiMode()
     {
@@ -372,8 +485,6 @@ public class SilantroBrain
         }
     }
 
-
-
     // -----------------------------------------------------------------------------------------------------------------------------------------------------------
     public void TakeoffClearance()
     {
@@ -390,17 +501,13 @@ public class SilantroBrain
         Debug.Log("Clicking!");
     }
 
-
-
-
     // -------------------------------------------TAKEOFF----------------------------------------------------------------------------------------------------------
     void TakeoffMode()
     {
         if (controller.engineRunning)
         {
             //------Accelerate
-            if (controller.gearHelper) { controller.gearHelper.ReleaseBrakes(); }
-            computer.processedThrottle = Mathf.Lerp(computer.processedThrottle, 1.05f, Time.deltaTime);
+            computer.processedThrottle = Mathf.Lerp(computer.processedThrottle, 1.05f, Time.deltaTime); // 1.05
             if (computer.processedThrottle > 1f && controller.input.boostState == SilantroInput.BoostState.Off) { controller.input.EngageBoost(); }
 
             // ------------------------------------- Send
@@ -416,7 +523,7 @@ public class SilantroBrain
             {
                 computer.commandPitchRate = 0f;
                 computer.pitchRateError = computer.pitchRate - computer.commandPitchRate;
-                //computer.processedPitch = computer.pitchRateSolver.CalculateOutput(computer.pitchRateError, computer.timeStep);
+                computer.processedPitch = computer.pitchRateSolver.CalculateOutput(computer.pitchRateError, computer.timeStep);
             }
             else
             {
@@ -426,7 +533,7 @@ public class SilantroBrain
                 computer.commandPitchRate = computer.pitchAngleSolver.CalculateOutput(computer.pitchAngleError, computer.timeStep);
 
                 computer.pitchRateError = computer.pitchRate - computer.commandPitchRate;
-                //computer.processedPitch = computer.pitchRateSolver.CalculateOutput(computer.pitchRateError, computer.timeStep);
+                computer.processedPitch = computer.pitchRateSolver.CalculateOutput(computer.pitchRateError, computer.timeStep);
             }
             #endregion Pitch Control
 
@@ -470,6 +577,7 @@ public class SilantroBrain
         // ---------------------------- Transition
         yield return new WaitForSeconds(transitionTime);
         foreach (SilantroAerofoil foil in computer.wingFoils) { if (foil.slatState == SilantroAerofoil.ControlState.Active) { foil.baseSlat = Mathf.MoveTowards(foil.baseSlat, 0f, foil.slatActuationSpeed * Time.fixedDeltaTime); } }
+        //Debug.Log("Now Cruising!!!");
         flightState = FlightState.Cruise;
     }
 
@@ -485,6 +593,21 @@ public class SilantroBrain
         if (Mathf.Abs(cruiseSpeed - computer.knotSpeed) > 2) { computer.autoThrottle = SilantroFlightComputer.ControlState.Active; }
         else { computer.autoThrottle = SilantroFlightComputer.ControlState.Off; }
 
+        Vector3 temp = aircraft.velocity.normalized;
+        float x =  Mathf.Sin(computer.yawAngle* Mathf.Deg2Rad);
+        float z =  Mathf.Cos(computer.yawAngle* Mathf.Deg2Rad);
+        
+        Vector3 Model_Facing_Axis = new Vector3(
+            Mathf.Cos(computer.pitchAngle* Mathf.Deg2Rad) * x,
+            -Mathf.Sin(computer.pitchAngle* Mathf.Deg2Rad),
+            Mathf.Cos(computer.pitchAngle* Mathf.Deg2Rad) * z
+        );
+        Vector3 Model_Side_Axis = new Vector3(
+            Mathf.Cos(computer.rollAngle* Mathf.Deg2Rad) *z,
+            -Mathf.Sin(computer.rollAngle* Mathf.Deg2Rad),
+            Mathf.Cos(computer.rollAngle* Mathf.Deg2Rad) *-x
+        );
+        Vector3 Model_Up = Vector3.Cross(Model_Facing_Axis,Model_Side_Axis);
 
         // ---------------- Auto Throttle
         float presetSpeed = cruiseSpeed / MathBase.toKnots;
@@ -499,17 +622,19 @@ public class SilantroBrain
 
 
         // ----------------- Boost Deceleration with Speedbrake
+        /*
         if (computer.speedBrakeSolver != null && computer.overideSpeedbrake && computer.ftHeight > 500f)
         {
             if (computer.speedBrakeSolver.actuatorState == SilantroActuator.ActuatorState.Disengaged && computer.speedError < -30f) { computer.speedBrakeSolver.EngageActuator(); }
             if (computer.speedBrakeSolver.actuatorState == SilantroActuator.ActuatorState.Engaged && computer.speedError > -20f) { computer.speedBrakeSolver.DisengageActuator(); }
         }
-
+        */
 
         // ---------------------------------------------------------------------------- Roll
         float presetHeading = cruiseHeading; if (presetHeading > 180) { presetHeading -= 360f; }
         computer.headingError = presetHeading - computer.currentHeading;
-        computer.turnSolver.maximum = computer.maximumTurnRate; computer.turnSolver.minimum = -computer.maximumTurnRate;
+        computer.turnSolver.maximum = computer.maximumTurnRate; 
+        computer.turnSolver.minimum = -computer.maximumTurnRate;
         computer.commandTurnRate = computer.turnSolver.CalculateOutput(computer.headingError, computer.timeStep);
 
 
@@ -521,20 +646,31 @@ public class SilantroBrain
 
         // -------------------------------------------- Roll Rate Required
         computer.rollAngleError = computer.rollAngle - (-1f * computer.commandBankAngle);
+        //Debug.Log(computer.rollAngleError);
         computer.rollAngleSolver.minimum = -computer.balanceRollRate; computer.rollAngleSolver.maximum = computer.balanceRollRate;
         computer.commandRollRate = computer.rollAngleSolver.CalculateOutput(computer.rollAngleError, computer.timeStep);
 
         computer.rollRateError = computer.commandRollRate - computer.rollRate;
         computer.processedRoll = computer.rollRateSolver.CalculateOutput(computer.rollRateError, computer.timeStep);
 
+        // -------------------------------------------- Roll Rate Required
+        
+        temp = Vector3.ProjectOnPlane(temp, Model_Up);
+        
+        float yawError = (float)Math.Round(Vector3.SignedAngle(temp, Model_Facing_Axis, Model_Up), 3) ;
+        computer.yawAngleError = yawError;
+        computer.commandYawRate = computer.yawRateSolver.CalculateOutput(computer.yawAngleError, computer.timeStep);
 
-
-
+        computer.yawAngleError = computer.commandYawRate - computer.yawRate;
+        computer.processedYaw = computer.yawRateSolver.CalculateOutput(computer.yawAngleError, computer.timeStep); 
+        //Debug.Log(yawError + " " + computer.commandYawRate + " " + computer.yawRate + " " + computer.processedYaw);
+        
         // --------------------------------------------------------------------------- Pitch
         // ------------------------------------------------ Altitude Hold
         computer.altitudeError = cruiseAltitude / MathBase.toFt - computer.currentAltitude;
         float presetClimbLimit = cruiseClimbRate / MathBase.toFtMin;
-        computer.altitudeSolver.maximum = presetClimbLimit; computer.altitudeSolver.minimum = -presetClimbLimit;
+        computer.altitudeSolver.maximum = presetClimbLimit;
+        computer.altitudeSolver.minimum = -presetClimbLimit;
         computer.commandClimbRate = computer.altitudeSolver.CalculateOutput(computer.altitudeError, computer.timeStep) * MathBase.toFtMin;
 
         // -------------------------------------------- Pitch Rate Required

@@ -317,17 +317,25 @@ public class SilantroFlightComputer : MonoBehaviour
     // Test Function
     public void test1()
     {
-        Debug.Log("Test1");
+        brain.test1();
     }
 
     public void test2()
     {
-        Debug.Log("Test2");
+        brain.test2();
     }
-    
+
     public void test3()
     {
-        Debug.Log("Test3");
+        brain.test3();
+    }
+    public void test4()
+    {
+        brain.test4();
+    }
+    public void test5()
+    {
+        brain.test5();
     }
     // ----------------------------------------------- Airline Variables
     public float absoluteBankAngle = 67f;
@@ -399,7 +407,11 @@ public class SilantroFlightComputer : MonoBehaviour
             PlotInputCurve();
 
             // --------------------------------------
-            if(operationMode == AugmentationType.Autonomous) { brain.computer = this.GetComponent<SilantroFlightComputer>(); brain.controller = controller; brain.InitializeBrain(); }
+            if(operationMode == AugmentationType.Autonomous) { 
+                brain.computer = this.GetComponent<SilantroFlightComputer>(); 
+                brain.controller = controller; 
+                brain.InitializeBrain(); 
+            }
 
 
             GameObject soundPoint = new GameObject("Sources"); soundPoint.transform.parent = this.transform; soundPoint.transform.localPosition = Vector3.zero;
@@ -478,7 +490,7 @@ public class SilantroFlightComputer : MonoBehaviour
             knotSpeed = currentSpeed * MathBase.toKnots;
             ftHeight = currentAltitude * MathBase.toFt;
 
-
+    
             // --------------------------------------------- Collect Control Inputs
             basePitchInput = controller.input.pitchInput;
             baseRollInput = controller.input.rollInput;
@@ -510,9 +522,9 @@ public class SilantroFlightComputer : MonoBehaviour
             float rawRollAngle = controller.transform.eulerAngles.z; if (rawRollAngle > 180) { rawRollAngle -= 360f; }
             float rawYawAngle = controller.transform.eulerAngles.y; if (rawYawAngle > 180) { rawYawAngle -= 360f; }
 
-            rollAngle = (float)Math.Round(rawRollAngle, 2);
-            pitchAngle = (float)Math.Round(rawPitchAngle, 2);
-            yawAngle = (float)Math.Round(rawYawAngle, 2);
+            rollAngle = (float)Math.Round(rawRollAngle, 4);
+            pitchAngle = (float)Math.Round(rawPitchAngle, 4);
+            yawAngle = (float)Math.Round(rawYawAngle, 4);
             maximumWingAlpha = -90f; foreach (SilantroAerofoil foil in wingFoils) { if (foil.maximumAOA > maximumWingAlpha) { maximumWingAlpha = foil.maximumAOA; } }
 
 
