@@ -225,6 +225,12 @@ public class SilantroFlightComputer : MonoBehaviour
     public float balanceYawRate = 10f;
     public float maximumBankAngle = 30f;
     public float maximumTurnBank = 50f;
+    public float maximumAccerTurnBank = 80f;
+    public float maximumDeccerTurnBank = 30f;
+
+    public float minimumAccerHeading = 40f;
+    public float maximumDeccerHeading = 10f;
+
     public float maximumClimbRate = 500f;
     public float maximumTurnRate = 4f;
     public float maximumPitchAngle = 30f;//Nose Up

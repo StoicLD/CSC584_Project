@@ -123,6 +123,50 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &57076813
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 57076815}
+  - component: {fileID: 57076814}
+  m_Layer: 0
+  m_Name: DebugHelperObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &57076814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 57076813}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b78bc313eb73deb48ba06763393e2f42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  computer: {fileID: 4771420788356709555}
+--- !u!4 &57076815
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 57076813}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &230782989
 GameObject:
   m_ObjectHideFlags: 0
@@ -215,7 +259,7 @@ GameObject:
   - component: {fileID: 268585021}
   - component: {fileID: 268585020}
   m_Layer: 5
-  m_Name: Test3
+  m_Name: RightButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2012,7 +2056,7 @@ GameObject:
   - component: {fileID: 1538995377}
   - component: {fileID: 1538995376}
   m_Layer: 5
-  m_Name: Test1
+  m_Name: LeftButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2175,7 +2219,7 @@ GameObject:
   - component: {fileID: 1568066767}
   - component: {fileID: 1568066766}
   m_Layer: 5
-  m_Name: Test2
+  m_Name: DownButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15704,6 +15748,7 @@ MonoBehaviour:
       pointOffset: 15
       currentPoint: 0
       currentSpeed: 0
+    cruiseWayPoint: {fileID: 0}
     controller: {fileID: 0}
     steerCurve:
       serializedVersion: 2
@@ -15766,6 +15811,9 @@ MonoBehaviour:
     cruiseSpeed: 200
     cruiseHeading: 0
     cruiseClimbRate: 1200
+    cruiseHeadingTurnFactor: 1.25
+    cruiseAccerBankAngle: 30
+    cruiseDeccerBankAngle: 15
     pathContainer: {fileID: 0}
   basePitchInput: 0
   baseRollInput: 0
@@ -16667,6 +16715,10 @@ MonoBehaviour:
   balanceYawRate: 10
   maximumBankAngle: 20
   maximumTurnBank: 50
+  maximumAccerTurnBank: 80
+  maximumDeccerTurnBank: 30
+  minimumAccerHeading: 40
+  maximumDeccerHeading: 10
   maximumClimbRate: 1000
   maximumTurnRate: 4
   maximumPitchAngle: 8
@@ -17320,7 +17372,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 256
-  groundInfluenceFactor: 0
+  groundInfluenceFactor: 0.90909463
   wingLetCenter: {x: 419.89883, y: 4.3650494, z: -1395.132}
   wingTipLeading: {x: 419.56, y: 4.36505, z: -1395.1377}
   wingTipTrailing: {x: 420.23767, y: 4.365049, z: -1395.1262}
@@ -18040,7 +18092,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 256
-  groundInfluenceFactor: 0
+  groundInfluenceFactor: 0.9328222
   wingLetCenter: {x: 419.89883, y: 4.36505, z: -1385.4688}
   wingTipLeading: {x: 419.56, y: 4.3650503, z: -1385.463}
   wingTipTrailing: {x: 420.23767, y: 4.3650494, z: -1385.4745}

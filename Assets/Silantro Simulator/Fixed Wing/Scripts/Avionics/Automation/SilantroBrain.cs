@@ -6,7 +6,7 @@ using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-
+using AI;
 
 /// <summary>
 /// 
@@ -30,6 +30,9 @@ public class SilantroBrain
     // ----------------------------------------- Connections
     public Rigidbody aircraft;
     public SilantroWaypointPlug tracker;
+    //public SilantroWaypointPlug cruiseTracker;
+    public Transform cruiseWayPoint;
+
     public SilantroController controller;
     public AnimationCurve steerCurve;
     public SilantroFlightComputer computer;
@@ -77,10 +80,18 @@ public class SilantroBrain
     public float cruiseSpeed = 300f;
     public float cruiseHeading = -90f;
     public float cruiseClimbRate = 1200f;
+    public float cruiseHeadingTurnFactor = 1.25f;
+
+
+    public float cruiseAccerBankAngle = 30f;
+    public float cruiseDeccerBankAngle = 15f;
+
+
     //---------------------------------- New
     public Transform pathContainer;
     private List<Transform> path =  new List<Transform>();
     private int path_cur = 0;
+    private PathFollowing pathFollowing;
 
     // Start is called before the first frame update
 
@@ -131,6 +142,10 @@ public class SilantroBrain
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------
     public void InitializeBrain()
     {
+        // AI customized path
+        pathFollowing = new PathFollowing();
+        pathFollowing.Init(controller.transform);
+
         // -------------------------
         aircraft = controller.aircraft;
         if(tracker != null) { tracker.aircraft = controller; tracker.InitializePlug(); }
@@ -298,15 +313,15 @@ public class SilantroBrain
     {
         // --------------------------- Lights
         controller.input.TurnOnLights();
-        flapSet = true;
-/*
+        // flapSet = true;
+        
         // --------------------------- Actuators
         if (controller.canopyActuator && controller.canopyActuator.actuatorState == SilantroActuator.ActuatorState.Engaged) { controller.canopyActuator.DisengageActuator(); }
         if (controller.speedBrakeActuator && controller.speedBrakeActuator.actuatorState == SilantroActuator.ActuatorState.Engaged) { controller.speedBrakeActuator.DisengageActuator(); }
         if (controller.wingActuator && controller.wingActuator.actuatorState == SilantroActuator.ActuatorState.Engaged) { controller.wingActuator.DisengageActuator(); }
 
         // --------------------------- Flaps
-        yield return new WaitForSeconds(checkListTime);
+        // yield return new WaitForSeconds(checkListTime);
         foreach (SilantroAerofoil foil in controller.wings)
         {
             if (foil.flapSetting != 1 && !flapSet && foil.flapAngleSetting == SilantroAerofoil.FlapAngleSetting.ThreeStep) { foil.SetFlaps(1, 1); }
@@ -315,16 +330,16 @@ public class SilantroBrain
         flapSet = true;
 
         // --------------------------- Slats
-        yield return new WaitForSeconds(checkListTime);
+        /* yield return new WaitForSeconds(checkListTime);
         foreach (SilantroAerofoil foil in controller.flightComputer.wingFoils)
         {
             if (foil.slatState == SilantroAerofoil.ControlState.Active) { foil.baseSlat = Mathf.MoveTowards(foil.baseSlat, controller.flightComputer.takeOffSlat, foil.slatActuationSpeed * Time.fixedDeltaTime); }
-        }
+        }*/
 
 
         // --------------------------- Control Surfaces
-        
-        yield return new WaitForSeconds(checkListTime);
+
+        // yield return new WaitForSeconds(checkListTime);
         if (!checkingSurfaces && currentTestTime < 1f) { currentTestTime = evaluateTime; checkingSurfaces = true; }
         if (!checkedSurfaces)
         {
@@ -333,13 +348,13 @@ public class SilantroBrain
             inputCheckFactor = offset + Mathf.Sin(Time.time * 5f) * cycleRange;
         }
 
-        yield return new WaitForSeconds(evaluateTime);
+        // yield return new WaitForSeconds(evaluateTime);
         checkedSurfaces = true;checkingSurfaces = false;
         computer.processedPitch = 0f;
         computer.processedRoll = 0f;
         computer.processedYaw = 0f;
         computer.processedStabilizerTrim = 0f;
-        */  
+                
         groundChecklistComplete = true;
 
         // ---------------------------- Transition
@@ -352,7 +367,6 @@ public class SilantroBrain
 
 
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------
-    
     void CheckControlSurfaces(float controlInput)
     {
         if (checkingSurfaces)
@@ -400,37 +414,56 @@ public class SilantroBrain
     {
         //Debug.Log("Taxiing!");
         // ------------------------------------- Clamp
-        float thresholdSpeed = maximumTaxiSpeed * 0.1f;
-       
+        float thresholdSpeed = maximumTaxiSpeed;
 
         // ------------------------------------- States
         if (taxiState == TaxiState.Stationary)
         {
             if (controller.gearHelper != null && controller.gearHelper.brakeState == SilantroGearSystem.BrakeState.Disengaged && tracker.currentPoint <= tracker.track.pathPoints.Count)
-            { taxiState = TaxiState.Moving; isTaxing = true; }
+            {
+                
+                taxiState = TaxiState.Moving;
+                isTaxing = true; 
+            }
         }
         if (taxiState == TaxiState.Moving)
         {
-            if (tracker.currentPoint > tracker.track.pathPoints.Count - 2 && controller.gearHelper != null && controller.gearHelper.brakeState == SilantroGearSystem.BrakeState.Disengaged)
+            // if (tracker.currentPoint > tracker.track.pathPoints.Count - 2 && controller.gearHelper != null && controller.gearHelper.brakeState == SilantroGearSystem.BrakeState.Disengaged)
+            // {
+            //     taxiState = TaxiState.Holding;
+            //     targetTaxiSpeed = 0; brakeInput = 0f;
+            //     if (controller.gearHelper != null) { controller.ToggleBrakeState(); }
+            //     isTaxing = false;
+
+            //     //--------------- Set Takeoff Parameters
+            //     takeoffHeading = computer.currentHeading;
+            // }
+            if (pathFollowing.CurrentIndex >= pathFollowing.Path.Count - 1 && controller.gearHelper != null && controller.gearHelper.brakeState == SilantroGearSystem.BrakeState.Disengaged)
             {
                 taxiState = TaxiState.Holding;
-                targetTaxiSpeed = 0; brakeInput = 0f;
-                if (controller.gearHelper != null) { controller.ToggleBrakeState(); }
+                targetTaxiSpeed = 0; 
+                brakeInput = 0f;
+                if (controller.gearHelper != null) { controller.gearHelper.EngageBrakes(); }
                 isTaxing = false;
-
+            
                 //--------------- Set Takeoff Parameters
                 takeoffHeading = computer.currentHeading;
             }
             else
             {
-                if(tracker.currentPoint > tracker.track.pathPoints.Count - 6 && tracker.currentPoint < tracker.track.pathPoints.Count - 4) { targetTaxiSpeed = (0.9f*maximumTaxiSpeed)/ 1.94384f; } //96
-                else if(tracker.currentPoint > tracker.track.pathPoints.Count - 5 && tracker.currentPoint < tracker.track.pathPoints.Count - 3) { targetTaxiSpeed = (0.5f * maximumTaxiSpeed) / 1.94384f; } //97
-                else if (tracker.currentPoint > tracker.track.pathPoints.Count - 4 && tracker.currentPoint < tracker.track.pathPoints.Count - 2) { targetTaxiSpeed = (0.25f * maximumTaxiSpeed) / 1.94384f; } //98
-                else if (tracker.currentPoint > tracker.track.pathPoints.Count - 3 && tracker.currentPoint < tracker.track.pathPoints.Count - 1) { targetTaxiSpeed = (0.1f * maximumTaxiSpeed) / 1.94384f; } //98
-                else { targetTaxiSpeed = steerCurve.Evaluate(steeringAngle) / 1.94384f; }
-
+                targetTaxiSpeed = pathFollowing.CalculateSpeed() * maximumTaxiSpeed * 0.2f;
                 isTaxing = true;
             }
+            // else
+            // {
+            //     if(tracker.currentPoint > tracker.track.pathPoints.Count - 6 && tracker.currentPoint < tracker.track.pathPoints.Count - 4) { targetTaxiSpeed = (0.9f*maximumTaxiSpeed)/ 1.94384f; } //96
+            //     else if(tracker.currentPoint > tracker.track.pathPoints.Count - 5 && tracker.currentPoint < tracker.track.pathPoints.Count - 3) { targetTaxiSpeed = (0.5f * maximumTaxiSpeed) / 1.94384f; } //97
+            //     else if (tracker.currentPoint > tracker.track.pathPoints.Count - 4 && tracker.currentPoint < tracker.track.pathPoints.Count - 2) { targetTaxiSpeed = (0.25f * maximumTaxiSpeed) / 1.94384f; } //98
+            //     else if (tracker.currentPoint > tracker.track.pathPoints.Count - 3 && tracker.currentPoint < tracker.track.pathPoints.Count - 1) { targetTaxiSpeed = (0.1f * maximumTaxiSpeed) / 1.94384f; } //98
+            //     else { targetTaxiSpeed = steerCurve.Evaluate(steeringAngle) / 1.94384f; }
+
+            //     isTaxing = true;
+            // }
         }
         if(taxiState == TaxiState.Holding)
         {
@@ -450,7 +483,8 @@ public class SilantroBrain
             // ------------------------------------- Speed Control
             float speedError = (targetTaxiSpeed - currentSpeed) * 1.94384f;
             if(computer.autoThrottle == SilantroFlightComputer.ControlState.Off) { computer.autoThrottle = SilantroFlightComputer.ControlState.Active; }
-            if(speedError > 5 && tracker.currentPoint < tracker.track.pathPoints.Count - 2)
+            // if(speedError > 5 && tracker.currentPoint < tracker.track.pathPoints.Count - 2)
+            if(speedError > 5 && pathFollowing.CurrentIndex < pathFollowing.Path.Count - 1)
             {
                 // ---------------- Auto Throttle
                 float presetSpeed = targetTaxiSpeed;
@@ -463,13 +497,14 @@ public class SilantroBrain
 
 
             // ------------------------------------- Point
-            tracker.UpdateTrack();
+            // tracker.UpdateTrack();
 
 
             // ------------------------------------- Steer
             float taxiSpeed = controller.transform.InverseTransformDirection(controller.aircraft.velocity).z;
             brakeInput = -1 *Mathf.Clamp((targetTaxiSpeed - currentSpeed) * brakeSensitivity, -1, 0);
-            Vector3 offsetTargetPos = tracker.target.position;
+            // Vector3 offsetTargetPos = tracker.target.position;
+            Vector3 offsetTargetPos = pathFollowing.Path[pathFollowing.CurrentIndex].position; //tracker.target.position;
             Vector3 localTarget = controller.transform.InverseTransformPoint(offsetTargetPos);
             float targetAngle = Mathf.Atan2(localTarget.x, localTarget.z) * Mathf.Rad2Deg;
             float steer = Mathf.Clamp(targetAngle * steerSensitivity, -1, 1) * Mathf.Sign(taxiSpeed);
@@ -507,7 +542,8 @@ public class SilantroBrain
         if (controller.engineRunning)
         {
             //------Accelerate
-            computer.processedThrottle = Mathf.Lerp(computer.processedThrottle, 1.05f, Time.deltaTime); // 1.05
+            if (controller.gearHelper) { controller.gearHelper.ReleaseBrakes(); }
+            computer.processedThrottle = Mathf.Lerp(computer.processedThrottle, 1.05f, Time.deltaTime);
             if (computer.processedThrottle > 1f && controller.input.boostState == SilantroInput.BoostState.Off) { controller.input.EngageBoost(); }
 
             // ------------------------------------- Send
@@ -593,21 +629,36 @@ public class SilantroBrain
         if (Mathf.Abs(cruiseSpeed - computer.knotSpeed) > 2) { computer.autoThrottle = SilantroFlightComputer.ControlState.Active; }
         else { computer.autoThrottle = SilantroFlightComputer.ControlState.Off; }
 
+        // velocity of the rigidbody of the aircraft (direction of movement)
         Vector3 temp = aircraft.velocity.normalized;
-        float x =  Mathf.Sin(computer.yawAngle* Mathf.Deg2Rad);
-        float z =  Mathf.Cos(computer.yawAngle* Mathf.Deg2Rad);
-        
-        Vector3 Model_Facing_Axis = new Vector3(
-            Mathf.Cos(computer.pitchAngle* Mathf.Deg2Rad) * x,
-            -Mathf.Sin(computer.pitchAngle* Mathf.Deg2Rad),
-            Mathf.Cos(computer.pitchAngle* Mathf.Deg2Rad) * z
-        );
-        Vector3 Model_Side_Axis = new Vector3(
-            Mathf.Cos(computer.rollAngle* Mathf.Deg2Rad) *z,
-            -Mathf.Sin(computer.rollAngle* Mathf.Deg2Rad),
-            Mathf.Cos(computer.rollAngle* Mathf.Deg2Rad) *-x
-        );
-        Vector3 Model_Up = Vector3.Cross(Model_Facing_Axis,Model_Side_Axis);
+        // yawAngle is the rotation value aspect to y axis(world coordinate
+        float x = Mathf.Sin(computer.yawAngle * Mathf.Deg2Rad);
+        float z = Mathf.Cos(computer.yawAngle * Mathf.Deg2Rad);
+
+        //Vector3 Model_Facing_Axis = new Vector3(
+        //    Mathf.Cos(computer.pitchAngle * Mathf.Deg2Rad) * x,
+        //    -Mathf.Sin(computer.pitchAngle * Mathf.Deg2Rad),
+        //    Mathf.Cos(computer.pitchAngle * Mathf.Deg2Rad) * z
+        //);
+        //Vector3 Model_Side_Axis = new Vector3(
+        //    Mathf.Cos(computer.rollAngle * Mathf.Deg2Rad) * z,
+        //    Mathf.Sin(computer.rollAngle * Mathf.Deg2Rad),
+        //    Mathf.Cos(computer.rollAngle * Mathf.Deg2Rad) * -x
+        //);
+        //Vector3 Model_Up = Vector3.Cross(Model_Facing_Axis, Model_Side_Axis);
+
+        var Model_Side_Axis = computer.transform.TransformDirection(new Vector3(1.0f, 0.0f, 0.0f));
+        var Model_Up = computer.transform.TransformDirection(new Vector3(0.0f, 1.0f, 0.0f));
+        var Model_Facing_Axis = computer.transform.TransformDirection(new Vector3(0.0f, 0.0f, 1.0f));
+        //Debug.Log("model facing:" + Model_Facing_Axis.normalized.ToString("F4"));
+        //Debug.Log("local z:" + computer_local_z_axis.normalized.ToString("F4"));
+
+        //Debug.Log("model side:" + Model_Side_Axis.normalized.ToString("F4"));
+        //Debug.Log("local x:" + computer_local_x_axis.normalized.ToString("F4"));
+
+        //Debug.Log("model up:" + Model_Up.normalized.ToString("F4"));
+        //Debug.Log("local y:" + computer_local_y_axis.normalized.ToString("F4"));
+
 
         // ---------------- Auto Throttle
         float presetSpeed = cruiseSpeed / MathBase.toKnots;
@@ -633,7 +684,12 @@ public class SilantroBrain
         // ---------------------------------------------------------------------------- Roll
         float presetHeading = cruiseHeading; if (presetHeading > 180) { presetHeading -= 360f; }
         computer.headingError = presetHeading - computer.currentHeading;
-        computer.turnSolver.maximum = computer.maximumTurnRate; 
+        // change max turning rate based on cruiseHeading
+        //float currMaxTurnRate = computer.maximumTurnRate * Mathf.Clamp((Math.Abs(cruiseHeading) / 180.0f) + 0.5f, 0.8f, 2.0f) * cruiseHeadingTurnFactor;
+
+        //computer.turnSolver.maximum = currMaxTurnRate;
+        //computer.turnSolver.minimum = -currMaxTurnRate;
+        computer.turnSolver.maximum = computer.maximumTurnRate;
         computer.turnSolver.minimum = -computer.maximumTurnRate;
         computer.commandTurnRate = computer.turnSolver.CalculateOutput(computer.headingError, computer.timeStep);
 
@@ -641,10 +697,27 @@ public class SilantroBrain
         // ---------------------------------------------- Calculate Required Bank
         float rollFactor = (computer.commandTurnRate * currentSpeed * MathBase.toKnots) / 1091f;
         computer.commandBankAngle = Mathf.Atan(rollFactor) * Mathf.Rad2Deg;
-        if (computer.commandBankAngle > computer.maximumTurnBank) { computer.commandBankAngle = computer.maximumTurnBank; }
-        if (computer.commandBankAngle < -computer.maximumTurnBank) { computer.commandBankAngle = -computer.maximumTurnBank; }
+        float currMaxTurnBank = computer.maximumTurnBank;
+        if (Math.Abs(computer.headingError) > computer.minimumAccerHeading)
+        {
+            currMaxTurnBank = computer.maximumAccerTurnBank;
+        }
+        else if (Math.Abs(computer.headingError) < computer.maximumDeccerHeading)
+        {
+            currMaxTurnBank = computer.maximumDeccerTurnBank;
+        }
+
+        if (computer.commandBankAngle > currMaxTurnBank) 
+        { 
+            computer.commandBankAngle = currMaxTurnBank; 
+        }
+        if (computer.commandBankAngle < -currMaxTurnBank) 
+        { 
+            computer.commandBankAngle = -currMaxTurnBank; 
+        }
 
         // -------------------------------------------- Roll Rate Required
+        // computer.rollAngle is the final roll angle that we want to achieve
         computer.rollAngleError = computer.rollAngle - (-1f * computer.commandBankAngle);
         //Debug.Log(computer.rollAngleError);
         computer.rollAngleSolver.minimum = -computer.balanceRollRate; computer.rollAngleSolver.maximum = computer.balanceRollRate;
@@ -653,11 +726,11 @@ public class SilantroBrain
         computer.rollRateError = computer.commandRollRate - computer.rollRate;
         computer.processedRoll = computer.rollRateSolver.CalculateOutput(computer.rollRateError, computer.timeStep);
 
-        // -------------------------------------------- Roll Rate Required
+        // -------------------------------------------- Yaw Rate Required
         
         temp = Vector3.ProjectOnPlane(temp, Model_Up);
         
-        float yawError = (float)Math.Round(Vector3.SignedAngle(temp, Model_Facing_Axis, Model_Up), 3) ;
+        float yawError = (float)Math.Round(Vector3.SignedAngle(temp, Model_Facing_Axis, Model_Up), 3) * 1.5f;
         computer.yawAngleError = yawError;
         computer.commandYawRate = computer.yawRateSolver.CalculateOutput(computer.yawAngleError, computer.timeStep);
 

@@ -4,7 +4,12 @@ using UnityEditor;
 #endif
 
 
-public class SilantroComputerConfig : MonoBehaviour { public SilantroFlightComputer fcs; public float pitchOutput; private void Update() { pitchOutput = fcs.pitchRateSolver.output; }}
+public class SilantroComputerConfig : MonoBehaviour
+{
+    public SilantroFlightComputer fcs; 
+    public float pitchOutput; 
+    private void Update() { pitchOutput = fcs.pitchRateSolver.output; }
+}
 
 
 
