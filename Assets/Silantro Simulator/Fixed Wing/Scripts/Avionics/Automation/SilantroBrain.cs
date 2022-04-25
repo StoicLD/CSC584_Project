@@ -62,7 +62,7 @@ public class SilantroBrain
    
 
     // -------------------------------- Taxi
-    public float maximumTaxiSpeed = 10f;
+    public float maximumTaxiSpeed = 100f;
     public float recommendedTaxiSpeed = 8f;
     public float maximumTurnSpeed = 5f;
     public float maximumSteeringAngle = 30f;
@@ -88,8 +88,8 @@ public class SilantroBrain
 
 
     //---------------------------------- New
-    public Transform pathContainer;
-    private List<Transform> path =  new List<Transform>();
+    // public Transform pathContainer;
+    private List<Transform> path = new List<Transform>();
     private int path_cur = 0;
     private PathFollowing pathFollowing;
 
@@ -150,12 +150,12 @@ public class SilantroBrain
         aircraft = controller.aircraft;
         if(tracker != null) { tracker.aircraft = controller; tracker.InitializePlug(); }
         // customized path
-        pathContainer = GameObject.Find("Takeoff Track A").transform;
-        for (int i = 0; i < pathContainer.childCount; i++)
-        {
-            path.Add(pathContainer.GetChild(i));
-        }
-        path_cur = 0;
+        // pathContainer = GameObject.Find("Takeoff Track A").transform;
+        // for (int i = 0; i < pathContainer.childCount; i++)
+        // {
+        //     path.Add(pathContainer.GetChild(i));
+        // }
+        // path_cur = 0;
         // ------------------------ Plot
         PlotSteerCurve();
     }
@@ -164,7 +164,7 @@ public class SilantroBrain
     public void test1()
     {
         cruiseHeading -= 2.5f;
-        cruiseHeading = -90f;
+        //cruiseHeading = -90f;
         Debug.Log("Test1" + cruiseHeading);
     }
 
@@ -360,9 +360,9 @@ public class SilantroBrain
         // ---------------------------- Transition
         yield return new WaitForSeconds(transitionTime);
         flightState = FlightState.Taxi;
-        takeoffHeading = computer.currentHeading;
-        flightState = FlightState.Takeoff;
-        if (controller.gearHelper) { controller.gearHelper.ReleaseBrakes(); } 
+        // takeoffHeading = computer.currentHeading;
+        // flightState = FlightState.Takeoff;
+        if (controller.gearHelper != null) { controller.gearHelper.ReleaseBrakes(); } 
     }
 
 
@@ -451,7 +451,7 @@ public class SilantroBrain
             }
             else
             {
-                targetTaxiSpeed = pathFollowing.CalculateSpeed() * maximumTaxiSpeed * 0.2f;
+                targetTaxiSpeed = pathFollowing.CalculateSpeed() * maximumTaxiSpeed * 0.6f / 1.94384f;
                 isTaxing = true;
             }
             // else
