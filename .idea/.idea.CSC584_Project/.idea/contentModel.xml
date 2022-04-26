@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Users\congk\.Rider2019.3\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\congk\.Rider2019.3\system\resharper-host\local\Transient\ReSharperHost\v193\SolutionCaches\_CSC584_Project.-1654600509.00" t="ExcludeRecursive" />
+    <e p="D:\UnityProjects\CSC584_Project" t="IncludeRecursive">
+      <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
+      <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
+      <e p="Assets" t="Include">
+        <e p="Silantro Simulator" t="Include">
+          <e p="Fixed Wing" t="Include">
+            <e p="Airfoils" t="Include">
+              <e p="Supersonic Mods" t="Include">
+                <e p="READ ME.txt" t="Include" />
+              </e>
+            </e>
+            <e p="Fonts" t="Include">
+              <e p="quicksand" t="Include">
+                <e p="SIL Open Font License.txt" t="Include" />
+              </e>
+            </e>
+            <e p="PLEASE READ ME!!!!.txt" t="Include" />
+            <e p="Scenes" t="Include">
+              <e p="Automation" t="Include">
+                <e p="Takeoff-AI READ ME!!!.txt" t="Include" />
+              </e>
+              <e p="PLEASE READ ME!!!!.txt" t="Include" />
+            </e>
+            <e p="Scripts" t="Include">
+              <e p="Aerodynamics" t="Include">
+                <e p="Analysis" t="Include">
+                  <e p="SilantroAirfoil.cs" t="Include" />
+                </e>
+                <e p="SilantroMagic.cs" t="Include" />
+                <e p="Structure" t="Include">
+                  <e p="AerofoilDesign.cs" t="Include" />
+                  <e p="SilantroAerofoil.cs" t="Include" />
+                  <e p="SilantroWingActuator.cs" t="Include" />
+                </e>
+              </e>
+              <e p="AI" t="Include">
+                <e p="PathFollowing.cs" t="Include" />
+                <e p="Steering.cs" t="Include" />
+                <e p="TexiRoute.cs" t="Include" />
+              </e>
+              <e p="Avionics" t="Include">
+                <e p="A-10 Thunderbolt Data46.txt" t="Include" />
+                <e p="Automation" t="Include">
+                  <e p="SilantroBrain.cs" t="Include" />
+                  <e p="SilantroComputerConfig.cs" t="Include" />
+                  <e p="SilantroFlightComputer.cs" t="Include" />
+                  <e p="SilantroGain.cs" t="Include" />
+                  <e p="SilantroPID.cs" t="Include" />
+                  <e p="SilantroWaypoint.cs" t="Include" />
+                </e>
+                <e p="Instruments" t="Include">
+                  <e p="SilantroDial.cs" t="Include" />
+                  <e p="SilantroInstrument.cs" t="Include" />
+                  <e p="SilantroLever.cs" t="Include" />
+                  <e p="SilantroReadout.cs" t="Include" />
+                </e>
+                <e p="SilantroCamera.cs" t="Include" />
+                <e p="SilantroComputer.cs" t="Include" />
+                <e p="SilantroDataLogger.cs" t="Include" />
+                <e p="SilantroFlightPath.cs" t="Include" />
+                <e p="Tracking" t="Include">
+                  <e p="SilantroRadar.cs" t="Include" />
+                  <e p="SilantroTransponder.cs" t="Include" />
+                </e>
+              </e>
+              <e p="Core" t="Include">
+                <e p="Annex" t="Include">
+                  <e p="ControllerHelper.cs" t="Include" />
+                  <e p="Hanger" t="Include">
+                    <e p="SilantroHanger.cs" t="Include" />
+                    <e p="SilantroHangerSensor.cs" t="Include" />
+                  </e>
+                  <e p="SilantroCleanup.cs" t="Include" />
+                  <e p="SilantroDisplay.cs" t="Include" />
+                  <e p="SilantroExtension.cs" t="Include" />
+                  <e p="SilantroHealth.cs" t="Include" />
+                  <e p="SilantroSmoker.cs" t="Include" />
+                  <e p="SilantroStarter.cs" t="Include" />
+                </e>
+                <e p="CustomController.cs" t="Include" />
+                <e p="HoverController.cs" t="Include" />
+                <e p="Mobile" t="Include">
+                  <e p="SilantroMobile.cs" t="Include" />
+                </e>
+                <e p="SilantroBody.cs" t="Include" />
+                <e p="SilantroController.cs" t="Include" />
+                <e p="SilantroCore.cs" t="Include" />
+                <e p="SilantroInput.cs" t="Include" />
+                <e p="SilantroPayload.cs" t="Include" />
+                <e p="SilantroPilot.cs" t="Include" />
+                <e p="VR" t="Include">
+                  <e p="SilantroButton.cs" t="Include" />
+                  <e p="SilantroFinger.cs" t="Include" />
+                  <e p="SilantroVirtualLever.cs" t="Include" />
+                </e>
+                <e p="Waypoint" t="Include">
+                  <e p="SilantroWaypointCircuit.cs" t="Include" />
+                  <e p="SilantroWaypointPlug.cs" t="Include" />
+                </e>
+              </e>
+              <e p="DebugFlightHelper.cs" t="Include" />
+              <e p="Editor" t="Include">
+                <e p="Aerodynamics" t="Include">
+                  <e p="WingCreator.cs" t="Include" />
+                  <e p="WingEditor.cs" t="Include" />
+                </e>
+                <e p="AerofoilEditor.cs" t="Include" />
+                <e p="ComponentEditor.cs" t="Include" />
+                <e p="CoreEditor.cs" t="Include" />
+                <e p="EngineEditor.cs" t="Include" />
+                <e p="Input" t="Include">
+                  <e p="InputEditor.cs" t="Include" />
+                </e>
+                <e p="READ ME!!.txt" t="Include" />
+                <e p="SilantroOdin.cs" t="Include" />
+                <e p="SilantroPlotter.cs" t="Include" />
+              </e>
+              <e p="Electronics" t="Include">
+                <e p="Light" t="Include">
+                  <e p="SilantroAirstripLights.cs" t="Include" />
+                  <e p="SilantroLight.cs" t="Include" />
+                  <e p="SilantroLightControl.cs" t="Include" />
+                </e>
+                <e p="SilantroBattery.cs" t="Include" />
+                <e p="Solar" t="Include">
+                  <e p="SilantroCell.cs" t="Include" />
+                  <e p="SilantroModule.cs" t="Include" />
+                  <e p="SilantroSolarPanel.cs" t="Include" />
+                </e>
+              </e>
+              <e p="Mechanical" t="Include">
+                <e p="SilantroActuator.cs" t="Include" />
+                <e p="SilantroGearSystem.cs" t="Include" />
+                <e p="SilantroHydraulicSystem.cs" t="Include" />
+                <e p="SilantroSpeedBrakes.cs" t="Include" />
+              </e>
+              <e p="Propulsion" t="Include">
+                <e p="Annex" t="Include">
+                  <e p="SilantroAfterburner.cs" t="Include" />
+                  <e p="SilantroBlade.cs" t="Include" />
+                  <e p="SilantroNozzle.cs" t="Include" />
+                  <e p="SilantroNozzleActuator.cs" t="Include" />
+                  <e p="SilantroPropeller.cs" t="Include" />
+                </e>
+                <e p="Engines" t="Include">
+                  <e p="Base" t="Include">
+                    <e p="SilantroEngineCore.cs" t="Include" />
+                    <e p="SilantroPistonEngine.cs" t="Include" />
+                    <e p="SilantroPulseJet.cs" t="Include" />
+                    <e p="SilantroTurboFan.cs" t="Include" />
+                    <e p="SilantroTurboJet.cs" t="Include" />
+                    <e p="SilantroTurboProp.cs" t="Include" />
+                    <e p="SilantroTurboShaft.cs" t="Include" />
+                  </e>
+                  <e p="Special" t="Include">
+                    <e p="SilantroElectricMotor.cs" t="Include" />
+                    <e p="SilantroLiftFan.cs" t="Include" />
+                    <e p="SilantroPegasusEngine.cs" t="Include" />
+                    <e p="SilantroRocketMotor.cs" t="Include" />
+                  </e>
+                </e>
+                <e p="Fuel" t="Include">
+                  <e p="SilantroFuelDistributor.cs" t="Include" />
+                  <e p="SilantroFuelSystem.cs" t="Include" />
+                  <e p="SilantroFuelTank.cs" t="Include" />
+                </e>
+              </e>
+              <e p="SilantroFunctions.cs" t="Include" />
+              <e p="Weapons" t="Include">
+                <e p="SilantroArmament.cs" t="Include" />
+                <e p="SilantroExplosion.cs" t="Include" />
+                <e p="SilantroGun.cs" t="Include" />
+                <e p="SilantroMunition.cs" t="Include" />
+                <e p="SilantroPylon.cs" t="Include" />
+              </e>
+            </e>
+            <e p="Shaders" t="Include">
+              <e p="AdditiveTintable.shader" t="Include" />
+              <e p="GlassStainedBumpDistort.shader" t="Include" />
+            </e>
+          </e>
+          <e p="Rotary Wing" t="Include">
+            <e p="Scripts" t="Include">
+              <e p="Editor" t="Include">
+                <e p="Phantom.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+          <e p="Silantro" t="Include">
+            <e p="Core" t="Include">
+              <e p="Silantro.cs" t="Include" />
+            </e>
+            <e p="Support" t="Include">
+              <e p="Standard Assets" t="Include">
+                <e p="Characters" t="Include">
+                  <e p="FirstPersonCharacter" t="Include">
+                    <e p="FirstPersonCharacterGuidelines.txt" t="Include" />
+                    <e p="Scripts" t="Include">
+                      <e p="FirstPersonController.cs" t="Include" />
+                      <e p="HeadBob.cs" t="Include" />
+                      <e p="MouseLook.cs" t="Include" />
+                      <e p="RigidbodyFirstPersonController.cs" t="Include" />
+                    </e>
+                  </e>
+                  <e p="ThirdPersonCharacter" t="Include">
+                    <e p="Scripts" t="Include">
+                      <e p="AICharacterControl.cs" t="Include" />
+                      <e p="ThirdPersonCharacter.cs" t="Include" />
+                      <e p="ThirdPersonUserControl.cs" t="Include" />
+                    </e>
+                    <e p="ThirdPersonCharacterGuidelines.txt" t="Include" />
+                  </e>
+                </e>
+                <e p="CrossPlatformInput" t="Include">
+                  <e p="CrossPlatformInputGuidelines.txt" t="Include" />
+                  <e p="Scripts" t="Include">
+                    <e p="AxisTouchButton.cs" t="Include" />
+                    <e p="ButtonHandler.cs" t="Include" />
+                    <e p="CrossPlatformInputManager.cs" t="Include" />
+                    <e p="InputAxisScrollbar.cs" t="Include" />
+                    <e p="Joystick.cs" t="Include" />
+                    <e p="MobileControlRig.cs" t="Include" />
+                    <e p="PlatformSpecific" t="Include">
+                      <e p="MobileInput.cs" t="Include" />
+                      <e p="StandaloneInput.cs" t="Include" />
+                    </e>
+                    <e p="TiltInput.cs" t="Include" />
+                    <e p="TouchPad.cs" t="Include" />
+                    <e p="VirtualInput.cs" t="Include" />
+                  </e>
+                </e>
+                <e p="Editor" t="Include">
+                  <e p="CrossPlatformInput" t="Include">
+                    <e p="CrossPlatformInputInitialize.cs" t="Include" />
+                  </e>
+                </e>
+                <e p="Utility" t="Include">
+                  <e p="ActivateTrigger.cs" t="Include" />
+                  <e p="AlphaButtonClickMask.cs" t="Include" />
+                  <e p="AutoMobileShaderSwitch.cs" t="Include" />
+                  <e p="AutoMoveAndRotate.cs" t="Include" />
+                  <e p="CameraRefocus.cs" t="Include" />
+                  <e p="CurveControlledBob.cs" t="Include" />
+                  <e p="DragRigidbody.cs" t="Include" />
+                  <e p="DynamicShadowSettings.cs" t="Include" />
+                  <e p="EventSystemChecker.cs" t="Include" />
+                  <e p="FollowTarget.cs" t="Include" />
+                  <e p="ForcedReset.cs" t="Include" />
+                  <e p="FOVKick.cs" t="Include" />
+                  <e p="FPSCounter.cs" t="Include" />
+                  <e p="LerpControlledBob.cs" t="Include" />
+                  <e p="ObjectResetter.cs" t="Include" />
+                  <e p="ParticleSystemDestroyer.cs" t="Include" />
+                  <e p="PlatformSpecificContent.cs" t="Include" />
+                  <e p="SimpleActivatorMenu.cs" t="Include" />
+                  <e p="SimpleMouseRotator.cs" t="Include" />
+                  <e p="SmoothFollow.cs" t="Include" />
+                  <e p="TimedObjectActivator.cs" t="Include" />
+                  <e p="TimedObjectDestructor.cs" t="Include" />
+                  <e p="WaypointCircuit.cs" t="Include" />
+                  <e p="WaypointProgressTracker.cs" t="Include" />
+                </e>
+              </e>
+            </e>
+            <e p="Weather System" t="Include">
+              <e p="Scripts" t="Include">
+                <e p="SilantroSapphire.cs" t="Include" />
+                <e p="SilantroTemperature.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+        </e>
+      </e>
+      <e p="CSC584_Project.sln" t="IncludeFlat" />
+      <e p="obj" t="ExcludeRecursive" />
+      <e p="Packages" t="ExcludeRecursive" />
+      <e p="Temp\Bin" t="ExcludeRecursive" />
+    </e>
+  </component>
+</project>

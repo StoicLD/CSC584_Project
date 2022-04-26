@@ -102,42 +102,6 @@ public class SilantroWaypointCircuit : MonoBehaviour
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------
     private void Awake()
     {
@@ -145,16 +109,10 @@ public class SilantroWaypointCircuit : MonoBehaviour
         pointCount = Waypoints.Count;
     }
 
-
-
-
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------
-    private void OnDrawGizmos() { DrawCircuit(false); }
-    private void OnDrawGizmosSelected() { DrawCircuit(true); }
-
-
-
-
+    private void OnDrawGizmos() { /*DrawCircuit(false);*/ }
+    private void OnDrawGizmosSelected() { /*DrawCircuit(true);*/ }
+    
 
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------
     public RoutePoint GetRoutePoint(float dist)
@@ -164,11 +122,7 @@ public class SilantroWaypointCircuit : MonoBehaviour
         Vector3 delta = p2 - p1;
         return new RoutePoint(p1, delta.normalized);
     }
-
-
-
-
-
+    
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------
     private void CachePositionsAndDistances()
     {
