@@ -89,9 +89,19 @@ public class SilantroBrain
 
     //---------------------------------- New
     // public Transform pathContainer;
+    public BeizeCurve akwardCurve = null;
+    public bool useAkwardCurve = true;
+    private float akwardCurveTime = 0.0f;
+    private Vector3 curveStartPostion = new Vector3();
+
+
     private List<Transform> path = new List<Transform>();
     private int path_cur = 0;
     private PathFollowing pathFollowing;
+
+    private bool isTaxiModeNeeded = true;
+
+    
 
     // Start is called before the first frame update
 
@@ -142,6 +152,19 @@ public class SilantroBrain
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------
     public void InitializeBrain()
     {
+        if(akwardCurve == null)
+        {
+            List<Vector3> bControlPoints = new List<Vector3>();
+            bControlPoints.Add(new Vector3(0f, 0f, 0f));
+            bControlPoints.Add(new Vector3(100f, 0f, 100f));
+            bControlPoints.Add(new Vector3(200f, 0f, 0f));
+            akwardCurve = new BeizeCurve(bControlPoints);
+        }
+        if(useAkwardCurve)
+        {
+            akwardCurveTime = 0.0f;
+        }
+
         // AI customized path
         pathFollowing = new PathFollowing();
         pathFollowing.Init(controller.transform);
@@ -241,7 +264,16 @@ public class SilantroBrain
             case FlightState.Taxi: TaxiMode(); break;
             case FlightState.Takeoff: TakeoffMode();
                  break;
-            case FlightState.Cruise: CruiseMode(); break;
+            case FlightState.Cruise: 
+                if(useAkwardCurve)
+                {
+                    AkwardCruiseMode();
+                }
+                else
+                {
+                    CruiseMode();
+                }
+                break;
         }
 
 
@@ -314,40 +346,41 @@ public class SilantroBrain
         // --------------------------- Lights
         controller.input.TurnOnLights();
         // flapSet = true;
-        
-        // --------------------------- Actuators
-        if (controller.canopyActuator && controller.canopyActuator.actuatorState == SilantroActuator.ActuatorState.Engaged) { controller.canopyActuator.DisengageActuator(); }
-        if (controller.speedBrakeActuator && controller.speedBrakeActuator.actuatorState == SilantroActuator.ActuatorState.Engaged) { controller.speedBrakeActuator.DisengageActuator(); }
-        if (controller.wingActuator && controller.wingActuator.actuatorState == SilantroActuator.ActuatorState.Engaged) { controller.wingActuator.DisengageActuator(); }
-
-        // --------------------------- Flaps
-        // yield return new WaitForSeconds(checkListTime);
-        foreach (SilantroAerofoil foil in controller.wings)
+        if (isTaxiModeNeeded)
         {
-            if (foil.flapSetting != 1 && !flapSet && foil.flapAngleSetting == SilantroAerofoil.FlapAngleSetting.ThreeStep) { foil.SetFlaps(1, 1); }
-            if (foil.flapSetting != 2 && !flapSet && foil.flapAngleSetting == SilantroAerofoil.FlapAngleSetting.FiveStep) { foil.SetFlaps(2, 1); }
+            // --------------------------- Actuators
+            if (controller.canopyActuator && controller.canopyActuator.actuatorState == SilantroActuator.ActuatorState.Engaged) { controller.canopyActuator.DisengageActuator(); }
+            if (controller.speedBrakeActuator && controller.speedBrakeActuator.actuatorState == SilantroActuator.ActuatorState.Engaged) { controller.speedBrakeActuator.DisengageActuator(); }
+            if (controller.wingActuator && controller.wingActuator.actuatorState == SilantroActuator.ActuatorState.Engaged) { controller.wingActuator.DisengageActuator(); }
+
+            // --------------------------- Flaps
+            // yield return new WaitForSeconds(checkListTime);
+            foreach (SilantroAerofoil foil in controller.wings)
+            {
+                if (foil.flapSetting != 1 && !flapSet && foil.flapAngleSetting == SilantroAerofoil.FlapAngleSetting.ThreeStep) { foil.SetFlaps(1, 1); }
+                if (foil.flapSetting != 2 && !flapSet && foil.flapAngleSetting == SilantroAerofoil.FlapAngleSetting.FiveStep) { foil.SetFlaps(2, 1); }
+            }
+            flapSet = true;
+
+            // --------------------------- Slats
+            /* yield return new WaitForSeconds(checkListTime);
+            foreach (SilantroAerofoil foil in controller.flightComputer.wingFoils)
+            {
+                if (foil.slatState == SilantroAerofoil.ControlState.Active) { foil.baseSlat = Mathf.MoveTowards(foil.baseSlat, controller.flightComputer.takeOffSlat, foil.slatActuationSpeed * Time.fixedDeltaTime); }
+            }*/
+
+
+            // --------------------------- Control Surfaces
+
+            // yield return new WaitForSeconds(checkListTime);
+            if (!checkingSurfaces && currentTestTime < 1f) { currentTestTime = evaluateTime; checkingSurfaces = true; }
+            if (!checkedSurfaces)
+            {
+                float startRange = -1.0f; float endRange = 1.0f; float cycleRange = (endRange - startRange) / 2f;
+                float offset = cycleRange + startRange;
+                inputCheckFactor = offset + Mathf.Sin(Time.time * 5f) * cycleRange;
+            }
         }
-        flapSet = true;
-
-        // --------------------------- Slats
-        /* yield return new WaitForSeconds(checkListTime);
-        foreach (SilantroAerofoil foil in controller.flightComputer.wingFoils)
-        {
-            if (foil.slatState == SilantroAerofoil.ControlState.Active) { foil.baseSlat = Mathf.MoveTowards(foil.baseSlat, controller.flightComputer.takeOffSlat, foil.slatActuationSpeed * Time.fixedDeltaTime); }
-        }*/
-
-
-        // --------------------------- Control Surfaces
-
-        // yield return new WaitForSeconds(checkListTime);
-        if (!checkingSurfaces && currentTestTime < 1f) { currentTestTime = evaluateTime; checkingSurfaces = true; }
-        if (!checkedSurfaces)
-        {
-            float startRange = -1.0f; float endRange = 1.0f; float cycleRange = (endRange - startRange) / 2f;
-            float offset = cycleRange + startRange;
-            inputCheckFactor = offset + Mathf.Sin(Time.time * 5f) * cycleRange;
-        }
-
         // yield return new WaitForSeconds(evaluateTime);
         checkedSurfaces = true;checkingSurfaces = false;
         computer.processedPitch = 0f;
@@ -359,9 +392,15 @@ public class SilantroBrain
 
         // ---------------------------- Transition
         yield return new WaitForSeconds(transitionTime);
-        flightState = FlightState.Taxi;
+        if (isTaxiModeNeeded)
+        {
+            flightState = FlightState.Taxi;
+        }
+        else
+        {
+            flightState = FlightState.Takeoff;
+        }
         // takeoffHeading = computer.currentHeading;
-        // flightState = FlightState.Takeoff;
         if (controller.gearHelper != null) { controller.gearHelper.ReleaseBrakes(); } 
     }
 
@@ -649,7 +688,7 @@ public class SilantroBrain
 
         var Model_Side_Axis = computer.transform.TransformDirection(new Vector3(1.0f, 0.0f, 0.0f));
         var Model_Up = computer.transform.TransformDirection(new Vector3(0.0f, 1.0f, 0.0f));
-        var Model_Facing_Axis = computer.transform.TransformDirection(new Vector3(0.0f, 0.0f, 1.0f));
+        var Model_Facing_Axis = computer.transform.TransformDirection(new Vector3(0.0f, 0.0f, 1.0f));       
         //Debug.Log("model facing:" + Model_Facing_Axis.normalized.ToString("F4"));
         //Debug.Log("local z:" + computer_local_z_axis.normalized.ToString("F4"));
 
@@ -754,5 +793,33 @@ public class SilantroBrain
 
         computer.pitchRateError = computer.pitchRate - computer.commandPitchRate;
         computer.processedPitch = computer.pitchRateSolver.CalculateOutput(computer.pitchRateError, computer.timeStep);
+    }
+
+    void AkwardCruiseMode()
+    {
+        // ignore all physical simulation
+        if (useAkwardCurve)
+        {
+            aircraft.isKinematic = false;
+            float currT = Mathf.Clamp(Time.deltaTime, 0.0f, 0.0333f);
+            if(Math.Abs(akwardCurveTime) <= 0.001f || akwardCurveTime + currT > 1.0f)
+            {
+                curveStartPostion = aircraft.transform.position;
+            }
+            akwardCurveTime = 1.0f % (akwardCurveTime + currT);
+            Vector3 currPos = akwardCurve.GetCurrentPoint(akwardCurveTime);
+            Vector3 currDir = akwardCurve.GetCurrentDerivative(akwardCurveTime);
+            // change postion
+            aircraft.transform.position = currPos + curveStartPostion;
+
+            // change direction
+            //var Model_Up = computer.transform.TransformDirection(new Vector3(0.0f, 1.0f, 0.0f));
+            //var targetDir = aircraft.transform.TransformDirection(currDir);
+            //aircraft.transform.rotation = Quaternion.LookRotation(targetDir, Model_Up);
+        }
+        else
+        {
+            CruiseMode();
+        }
     }
 }

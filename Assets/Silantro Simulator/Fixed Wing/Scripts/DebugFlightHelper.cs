@@ -6,9 +6,27 @@ public class DebugFlightHelper : MonoBehaviour
 {
     // Start is called before the first frame update
     public SilantroFlightComputer computer;
+    public BeizeCurve curve;
+
+    private const int drawPointsSize = 30;
+    private List<Vector3> drawPoints = new List<Vector3>();
+    private List<Vector3> drawPointsDirective = new List<Vector3>();
+
+
     void Start()
     {
-        
+        List<Vector3> bControlPoints = new List<Vector3>();
+        bControlPoints.Add(new Vector3(0f, 0f, 0f));
+        bControlPoints.Add(new Vector3(100f, 0f, 100f));
+        bControlPoints.Add(new Vector3(200f, 0f, 0f));
+        curve = new BeizeCurve(bControlPoints);
+        float delta = 1.0f / (float)drawPointsSize;
+        for(int i = 0; i < drawPointsSize; i++)
+        {
+            drawPoints.Add(curve.GetCurrentPoint(delta * (float)i));
+            drawPointsDirective.Add(curve.GetCurrentDerivative(delta * (float)i));
+            Debug.Log(drawPoints[i]);
+        }
     }
 
     // Update is called once per frame
@@ -28,6 +46,13 @@ public class DebugFlightHelper : MonoBehaviour
             Vector3 localAxisX = computer.transform.localPosition + new Vector3(10f, 0f, 0f);
             Vector3 localAxisY = computer.transform.localPosition + new Vector3(0f, 10f, 0f);
             Vector3 localAxisZ = computer.transform.localPosition + new Vector3(0f, 0f, 10f);
+
+            Vector3 currPos = computer.transform.position;
+            for(int i = 0; i < drawPoints.Count - 1; i++)
+            {
+                Debug.DrawLine(currPos + drawPoints[i], currPos + drawPoints[i + 1], Color.black);
+                Debug.DrawLine(currPos + drawPoints[i], currPos + drawPoints[i] + drawPointsDirective[i].normalized, Color.red);
+            }
 
             //Debug.DrawRay(computer.transform.position, computer.transform.TransformDirection(localAxisX), Color.red);
             //Debug.DrawRay(computer.transform.position, computer.transform.TransformDirection(localAxisY), Color.black);

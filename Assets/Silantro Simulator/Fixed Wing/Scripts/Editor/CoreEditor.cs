@@ -571,7 +571,16 @@ public class SilantroFlightComputerEditor : Editor
 			EditorGUILayout.PropertyField(brain.FindPropertyRelative("cruiseClimbRate"), new GUIContent("Cruise Climb (ft/min)"));
 			GUILayout.Space(3f);
 			EditorGUILayout.PropertyField(brain.FindPropertyRelative("cruiseAltitude"), new GUIContent("Cruise Altitude (ft)"));
-		}
+
+            GUILayout.Space(15f);
+            GUI.color = silantroColor;
+            EditorGUILayout.HelpBox("Akward Cruise Performance", MessageType.None);
+            GUI.color = backgroundColor;
+            GUILayout.Space(3f);
+            EditorGUILayout.PropertyField(brain.FindPropertyRelative("useAkwardCurve"), new GUIContent("Use AkwardCurve"));
+            GUILayout.Space(3f);
+            EditorGUILayout.PropertyField(brain.FindPropertyRelative("akwardCurve"), new GUIContent("Curve Control"));
+        }
 
 		else if(computer.operationMode == SilantroFlightComputer.AugmentationType.CommandAugmentation)
 		{

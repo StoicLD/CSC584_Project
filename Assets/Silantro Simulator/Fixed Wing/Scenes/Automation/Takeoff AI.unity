@@ -153,6 +153,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   computer: {fileID: 4771420788356709555}
+  curve:
+    controlPoints: []
 --- !u!4 &57076815
 Transform:
   m_ObjectHideFlags: 0
@@ -15814,6 +15816,12 @@ MonoBehaviour:
     cruiseHeadingTurnFactor: 1.25
     cruiseAccerBankAngle: 30
     cruiseDeccerBankAngle: 15
+    akwardCurve:
+      controlPoints:
+      - {x: 0, y: 0, z: 0}
+      - {x: 200, y: 0, z: 200}
+      - {x: 0, y: 0, z: 400}
+    useAkwardCurve: 0
   basePitchInput: 0
   baseRollInput: 0
   baseYawInput: 0
