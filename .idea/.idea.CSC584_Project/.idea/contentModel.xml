@@ -39,9 +39,21 @@
                 </e>
               </e>
               <e p="AI" t="Include">
-                <e p="PathFollowing.cs" t="Include" />
-                <e p="Steering.cs" t="Include" />
-                <e p="TexiRoute.cs" t="Include" />
+                <e p="DecisionTree" t="Include">
+                  <e p="ActionManager.cs" t="Include" />
+                  <e p="ActionNode.cs" t="Include" />
+                  <e p="DecisionNode.cs" t="Include" />
+                  <e p="DecisionTree.cs" t="Include" />
+                  <e p="DecisionTreeNode.cs" t="Include" />
+                </e>
+                <e p="SteeringBehavior" t="Include">
+                  <e p="PathFollowing.cs" t="Include" />
+                  <e p="Steering.cs" t="Include" />
+                  <e p="TexiRoute.cs" t="Include" />
+                </e>
+                <e p="Test" t="Include">
+                  <e p="TestCase.cs" t="Include" />
+                </e>
               </e>
               <e p="Avionics" t="Include">
                 <e p="A-10 Thunderbolt Data46.txt" t="Include" />
