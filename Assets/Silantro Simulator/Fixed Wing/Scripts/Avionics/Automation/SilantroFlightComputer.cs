@@ -220,13 +220,13 @@ public class SilantroFlightComputer : MonoBehaviour
     public float balancePitchAngle = 0, balanceRollAngle = 0f;
 
     // -------------------------------------------- SAS Command
-    public float balanceRollRate = 10f;
+    public float balanceRollRate = 30f;
     public float balancePitchRate = 10f;
     public float balanceYawRate = 10f;
-    public float maximumBankAngle = 30f;
+    public float maximumBankAngle = 85f;
     public float maximumTurnBank = 50f;
-    public float maximumAccerTurnBank = 80f;
-    public float maximumDeccerTurnBank = 30f;
+    public float maximumAccerTurnBank = 90f;
+    public float maximumDeccerTurnBank = 60f;
 
     public float minimumAccerHeading = 40f;
     public float maximumDeccerHeading = 10f;
@@ -342,6 +342,14 @@ public class SilantroFlightComputer : MonoBehaviour
     public void test5()
     {
         brain.test5();
+    }
+    public void test6()
+    {
+        brain.test6();
+    }
+    public void test7()
+    {
+        brain.test7();
     }
     // ----------------------------------------------- Airline Variables
     public float absoluteBankAngle = 67f;
