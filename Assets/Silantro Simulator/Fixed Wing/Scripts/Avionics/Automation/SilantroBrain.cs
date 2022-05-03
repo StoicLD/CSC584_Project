@@ -62,8 +62,8 @@ public class SilantroBrain
    
 
     // -------------------------------- Taxi
-    public float maximumTaxiSpeed = 100f;
-    public float recommendedTaxiSpeed = 12f;
+    public float maximumTaxiSpeed = 40f;
+    public float recommendedTaxiSpeed = 15f;
     public float maximumTurnSpeed = 5f;
     public float maximumSteeringAngle = 30f;
     public float minimumSteeringAngle = 15f;
@@ -98,6 +98,7 @@ public class SilantroBrain
     private int timer = 0;
     private Vector3 World_Up = new Vector3(0,1,0);
     public Transform landing_track;
+    public Transform sphere;
 
     // Start is called before the first frame update
 
@@ -152,6 +153,8 @@ public class SilantroBrain
         pathFollowing = new PathFollowing();
         pathFollowing.Init(controller.transform);
         landing_track = GameObject.Find("Landing Track A").transform;
+        sphere = GameObject.Find("Sphere1").transform;
+        maximumTaxiSpeed = 40f;
         // -------------------------
         aircraft = controller.aircraft;
         if(tracker != null) { tracker.aircraft = controller; tracker.InitializePlug(); }
@@ -301,6 +304,11 @@ public class SilantroBrain
                 //Debug.Log("Engine Start Complete, commencing ground checklist");
                 computer.StartCoroutine(GroundCheckList());
             }
+            else
+            {
+                flightState = FlightState.Taxi;
+                taxiState = TaxiState.Stationary;
+            }
         }
     }
 
@@ -357,8 +365,8 @@ public class SilantroBrain
         // ---------------------------- Transition
         yield return new WaitForSeconds(transitionTime);
         flightState = FlightState.Taxi;
-        takeoffHeading = computer.currentHeading;
-        flightState = FlightState.Takeoff;
+        //takeoffHeading = computer.currentHeading;
+       // flightState = FlightState.Takeoff;
         if (controller.gearHelper != null) { controller.gearHelper.ReleaseBrakes(); } 
     }
 
@@ -451,7 +459,6 @@ public class SilantroBrain
         {
             // ------------------------------------- Speed Control
             float speedError = (targetTaxiSpeed - currentSpeed) * 1.94384f;
-            Debug.Log(speedError);
             if(computer.autoThrottle == SilantroFlightComputer.ControlState.Off) { computer.autoThrottle = SilantroFlightComputer.ControlState.Active; }
             // if(speedError > 5 && tracker.currentPoint < tracker.track.pathPoints.Count - 2)
             if( pathFollowing.CurrentIndex < pathFollowing.Path.Count - 1)
@@ -628,12 +635,16 @@ public class SilantroBrain
         
         Vector3 Destination;
         if(path_currentIndex < path.Count)
+        {
             Destination = path[path_currentIndex].position - computer.transform.position;
+            //Debug.Log(Destination.sqrMagnitude/93000);
+            Destination[1] += Mathf.Min(150, Destination.sqrMagnitude/93000);
+            sphere.position = path[path_currentIndex].position;
+        }
         else
         {
             if (flightState != FlightState.Descent)
             {
-                Debug.Log(Mathf.Abs(landing_track.GetChild(0).position[1] - computer.transform.position[1]));
                 if(Mathf.Abs(landing_track.GetChild(0).position[1] - computer.transform.position[1]) > 1200)
                 {
                     Vector3 intermediate =  D_Model_Facing*2000 + path[path_currentIndex - 1].position;
@@ -643,7 +654,7 @@ public class SilantroBrain
                     Debug.Log("intermediate!" + intermediate);
                     Debug.Log("intermediate!" + intermediate);
                 }
-                descentSpeed = 160f;
+                descentSpeed = 165f;
                 flightState = FlightState.Descent;
                 path.Clear();
                 path_currentIndex = 0;
@@ -699,8 +710,8 @@ public class SilantroBrain
         }
 
 
-
         float yawAngleDiff = Vector3.SignedAngle( new Vector3(Destination[0], 0 , Destination[2]),D_Model_Facing, World_Up);
+        if (float.IsNaN(yawAngleDiff)) yawAngleDiff = 1f;
         // ---------------- Auto Throttle
         float presetSpeed;
         if (flightState != FlightState.Descent && flightState != FlightState.Landing)
@@ -749,16 +760,27 @@ public class SilantroBrain
         rollHelper = Vector3.ProjectOnPlane(rollHelper, Model_Up);
         float rollFactor = (currentSpeed * MathBase.toKnots) / 150f;
         float rollError =  (float)Math.Round(Vector3.SignedAngle(rollHelper, Model_Facing_Axis, Model_Up), 4);
-        
-        float test2 = rollError;
         rollError *= Mathf.Abs(rollError) *Mathf.Abs(rollError) *rollFactor/20f;
 
         // ----w---------------------------------------- Roll Rate Required
         // computer.rollAngle is the final roll angle that we want to achieve
-        if(Mathf.Abs(rollError) < 0.8f) rollError = 0f;
-        else if (Mathf.Abs(rollError) > 89.9f) rollError = Mathf.Abs(yawAngleDiff)/yawAngleDiff * 89f;
-        computer.rollAngleError = computer.rollAngle -rollError;  //computer.rollAngle - (-1f * computer.commandBankAngle);
+        if(Mathf.Abs(rollError) < 0.5f) rollError = 0f;
+        else if (Mathf.Abs(rollError) > 88f) 
+        {
+            if(Mathf.Abs(yawAngleDiff) > 150f)
+            {
+                rollError =  88f;
+            }
+            else
+            {
+                if(yawAngleDiff != 0)
+                    rollError = Mathf.Abs(yawAngleDiff)/yawAngleDiff * 88f;
+                else
+                    rollError = Mathf.Abs(rollError)/rollError * 88f;
+            }
+        }
 
+        computer.rollAngleError = computer.rollAngle -rollError;
         computer.rollAngleSolver.minimum = -computer.balanceRollRate; 
         computer.rollAngleSolver.maximum = computer.balanceRollRate;
         computer.commandRollRate = computer.rollAngleSolver.CalculateOutput(computer.rollAngleError, computer.timeStep);
@@ -769,30 +791,31 @@ public class SilantroBrain
         // -------------------------------------------- Yaw Rate Required
         float yawDiff = 0f;
         float pitchDiff = 0f;
-        if(timer == 0)
+        if(timer == 0 )
         {
             Vector3 yawHelper = Destination.normalized;
             Vector3 pitchHelper = Vector3.ProjectOnPlane(yawHelper, Model_Side_Axis);
             yawHelper = Vector3.ProjectOnPlane(yawHelper, Model_Up);
             yawHelper = Vector3.ProjectOnPlane(yawHelper, Model_Facing_Axis);
             yawDiff =  Mathf.Max(yawHelper[0]/Model_Side_Axis[0], yawHelper[2]/Model_Side_Axis[2]);
-            if (Mathf.Abs(yawDiff) > 1.5f || Mathf.Abs(yawDiff) < 0.01f) yawDiff = 0f;
+            if (float.IsNaN(yawDiff) || Mathf.Abs(yawDiff) > 1.5f || Mathf.Abs(yawDiff) < 0.01f) yawDiff = 0f;
 
             pitchHelper = Vector3.ProjectOnPlane(pitchHelper, Model_Facing_Axis);
-            pitchDiff =Mathf.Max(pitchHelper[0]/Model_Up[0], pitchHelper[1]/Model_Up[1]);
+            pitchDiff = Mathf.Max(pitchHelper[0]/Model_Up[0], pitchHelper[1]/Model_Up[1]);
+            if(float.IsNaN(pitchDiff)) pitchDiff = 0f;
         }
         
         computer.yawAngleError = 16 * yawDiff;
         computer.processedYaw = computer.yawRateSolver.CalculateOutput(computer.yawAngleError, computer.timeStep); 
+         
+        computer.pitchRateError =  pitchDiff * -7 - 0.01f;
+        computer.processedPitch = computer.pitchRateSolver.CalculateOutput(computer.pitchRateError, computer.timeStep);
         
         // --------------------------------------------------------------------------- Pitch
         // ------------------------------------------------ Altitude Hold
         //temp = Vector3.ProjectOnPlane(temp, Model_Side_Axis);
         //float yawError = (float)Math.Round(Vector3.SignedAngle(temp, Model_Facing_Axis, Model_Up), 3) * 2f;
-        
-        computer.pitchRateError =  pitchDiff * -7 - 0.01f;
-        computer.processedPitch = computer.pitchRateSolver.CalculateOutput(computer.pitchRateError, computer.timeStep);
-        
+       
         /*
         computer.altitudeError = cruiseAltitude / MathBase.toFt - computer.currentAltitude;
 
@@ -836,7 +859,7 @@ public class SilantroBrain
             if (foil.flapSetting != 2 && !flapSet && foil.flapAngleSetting == SilantroAerofoil.FlapAngleSetting.FiveStep) { foil.SetFlaps(2, 1); }
         }
         computer.processedPitch = -0.5f * (90f / currentSpeed);
-        if(computer.transform.position[1] < 3.8f) computer.processedPitch = 0f;
+        if(computer.transform.position[1] < 3.4f) computer.processedPitch = 0f;
         
         computer.yawAngleError = 0f;
         computer.processedYaw = computer.yawRateSolver.CalculateOutput(computer.yawAngleError, computer.timeStep); 
@@ -850,6 +873,7 @@ public class SilantroBrain
             float steer = Mathf.Clamp(targetAngle * steerSensitivity, -1, 1) * Mathf.Sign(taxiSpeed);
             steeringAngle = Mathf.Lerp(maximumSteeringAngle, minimumSteeringAngle, Mathf.Abs(taxiSpeed) * 0.015f) * steer;
 
+            computer.processedThrottle = 0.0f;
             if (controller.gearHelper != null)
             {
                 controller.gearHelper.brakeInput = brakeInput;
