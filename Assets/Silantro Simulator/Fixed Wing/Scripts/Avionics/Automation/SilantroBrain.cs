@@ -99,11 +99,16 @@ public class SilantroBrain
     private int path_cur = 0;
     private PathFollowing pathFollowing;
 
-    private bool isTaxiModeNeeded = true;
+    private bool isTaxiModeNeeded = false;
 
     
 
     // Start is called before the first frame update
+
+    public Vector3 GetCurveStartPos()
+    {
+        return curveStartPostion;
+    }
 
     private Matrix4x4 fromRotation(float rad, Vector3 axis) 
     {
@@ -654,6 +659,11 @@ public class SilantroBrain
         foreach (SilantroAerofoil foil in computer.wingFoils) { if (foil.slatState == SilantroAerofoil.ControlState.Active) { foil.baseSlat = Mathf.MoveTowards(foil.baseSlat, 0f, foil.slatActuationSpeed * Time.fixedDeltaTime); } }
         //Debug.Log("Now Cruising!!!");
         flightState = FlightState.Cruise;
+        if(useAkwardCurve)
+        {
+            aircraft.isKinematic = false;
+            aircraft.detectCollisions = false;
+        }
     }
 
 
@@ -801,20 +811,32 @@ public class SilantroBrain
         if (useAkwardCurve)
         {
             aircraft.isKinematic = false;
-            float currT = Mathf.Clamp(Time.deltaTime, 0.0f, 0.0333f);
-            if(Math.Abs(akwardCurveTime) <= 0.001f || akwardCurveTime + currT > 1.0f)
+            aircraft.detectCollisions = false;
+            aircraft.velocity = Vector3.zero;
+            aircraft.angularVelocity = Vector3.zero;
+
+            float currT = Mathf.Clamp(Time.deltaTime, 0.0f, 0.1f);
+            if(Math.Abs(akwardCurveTime) == 0.0f || akwardCurveTime + currT > 1.0f)
             {
+                Debug.Log("Start a new Curve.");
                 curveStartPostion = aircraft.transform.position;
             }
-            akwardCurveTime = 1.0f % (akwardCurveTime + currT);
+
+            akwardCurveTime = (akwardCurveTime + currT) % 1.0f;
+
             Vector3 currPos = akwardCurve.GetCurrentPoint(akwardCurveTime);
             Vector3 currDir = akwardCurve.GetCurrentDerivative(akwardCurveTime);
             // change postion
+            //Debug.Log("current pos: " + currPos);
+
             aircraft.transform.position = currPos + curveStartPostion;
 
             // change direction
-            //var Model_Up = computer.transform.TransformDirection(new Vector3(0.0f, 1.0f, 0.0f));
-            //var targetDir = aircraft.transform.TransformDirection(currDir);
+            var Model_Up = computer.transform.TransformDirection(new Vector3(0.0f, 1.0f, 0.0f));
+            var targetDir = aircraft.transform.TransformDirection(currDir);
+            Debug.DrawRay(aircraft.transform.position, targetDir, Color.black);
+            Debug.DrawRay(aircraft.transform.position, currDir, Color.blue);
+
             //aircraft.transform.rotation = Quaternion.LookRotation(targetDir, Model_Up);
         }
         else
