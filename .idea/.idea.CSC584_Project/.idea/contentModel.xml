@@ -45,14 +45,19 @@
                   <e p="DecisionNode.cs" t="Include" />
                   <e p="DecisionTree.cs" t="Include" />
                   <e p="DecisionTreeNode.cs" t="Include" />
+                  <e p="Test" t="Include">
+                    <e p="TestCase.cs" t="Include" />
+                  </e>
+                </e>
+                <e p="EasyAI" t="Include">
+                  <e p="EasyAI.cs" t="Include" />
+                  <e p="EasyPathFollowing.cs" t="Include" />
                 </e>
                 <e p="SteeringBehavior" t="Include">
+                  <e p="DrawRoute.cs" t="Include" />
                   <e p="PathFollowing.cs" t="Include" />
                   <e p="Steering.cs" t="Include" />
-                  <e p="TexiRoute.cs" t="Include" />
-                </e>
-                <e p="Test" t="Include">
-                  <e p="TestCase.cs" t="Include" />
+                  <e p="SteeringData.cs" t="Include" />
                 </e>
               </e>
               <e p="Avionics" t="Include">
@@ -183,6 +188,9 @@
                 </e>
               </e>
               <e p="SilantroFunctions.cs" t="Include" />
+              <e p="Utility" t="Include">
+                <e p="SimpleCameraController.cs" t="Include" />
+              </e>
               <e p="Weapons" t="Include">
                 <e p="SilantroArmament.cs" t="Include" />
                 <e p="SilantroExplosion.cs" t="Include" />

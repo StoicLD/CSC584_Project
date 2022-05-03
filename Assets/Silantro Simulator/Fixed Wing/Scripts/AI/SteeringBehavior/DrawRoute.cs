@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace AI
 {
-    public class TexiRoute : MonoBehaviour
+    public class DrawRoute : MonoBehaviour
     {
         public List<Transform> path = new List<Transform>();
 
